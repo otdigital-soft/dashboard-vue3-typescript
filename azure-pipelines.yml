@@ -1,0 +1,39 @@
+name: $(MajorVersion).$(MinorVersion).$(PatchVersion).$(rev:rr)
+
+trigger:
+- main
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: PowerShell@2
+    displayName: Update build number  
+    inputs:
+      targetType: 'inline'
+      script: |
+        $footer = Get-Content -Path $Env:BUILD_SOURCESDIRECTORY/src/components/Footer.vue -Raw
+        $footer = $footer.Replace('[Version]', $Env:BUILD_BUILDNUMBER)
+        $footer | Set-Content -Path $Env:BUILD_SOURCESDIRECTORY/src/components/Footer.vue
+
+  - task: AzureStaticWebApp@0
+    displayName: Build for Azure Static Web [main]
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    inputs:
+      app_location: '/'
+      app_build_command: 'npm run build'
+      output_location: '/dist'
+      config_file_location: '/'
+      azure_static_web_apps_api_token: '$(deployment_token)'
+
+  - task: AzureStaticWebApp@0
+    displayName: Build for Azure Static Web [develop]
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+    inputs:
+      app_location: ''
+      app_build_command: 'npm run build-staging'
+      output_location: '/dist'
+      config_file_location: '/'
+      skip_api_build: true      
+      azure_static_web_apps_api_token: '$(dev_deployment_token)'

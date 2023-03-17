@@ -1,0 +1,14 @@
+{
+    "navigationFallback": {
+        "rewrite": "/index.html",
+        "exclude": [
+            "/icons/*.{png,ico}",
+            "/images/*.{png,jpg,gif,svg,ico}",
+            "/browserconfig.xml",
+            "/favicon.ico"
+        ]
+    },
+    "platform": {
+        "apiRuntime": "node:16"
+    }
+}
